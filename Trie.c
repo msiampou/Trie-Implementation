@@ -4,8 +4,8 @@
 #include <limits.h>
 #include <math.h>
 
-#include "../header/Trie.h"
-#include "../header/Stack.h"
+#include "Trie.h"
+#include "Stack.h"
 
 /* Initialising Trie
  * and creating its root

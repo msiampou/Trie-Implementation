@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../header/Stack.h"
+#include "Stack.h"
 
 /* Head points to the bottom of the Stack
  * and rear on top

@@ -8,6 +8,6 @@ Lists are sorted to allow traversal in lexicographic order.
 ### Downloading
 Download source code by typing:
 
-git clone https://github.com/msiampou/Trie-Implementation.git
+``` git clone https://github.com/msiampou/Trie-Implementation.git ```
 
 

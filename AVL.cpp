@@ -121,16 +121,6 @@ class AVL{
 
 int main(void){
   AVL<int> avl;
-  avl.insert(8);
-  avl.insert(5);
-  avl.insert(4);
-  avl.insert(11);
-  avl.insert(15);
-  avl.insert(3);
-  avl.insert(6);
-  avl.insert(2);
-  avl.remove(15);
-  avl.remove(8);
-  avl.postorder();
+  //...//
   std::cout << std::endl;
 }

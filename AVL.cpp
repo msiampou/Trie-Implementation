@@ -1,4 +1,5 @@
 #include <iostream>
+#include <assert.h>     /* assert */
 
 template <typename T, typename Less = std::less<T>>
 class AVL{
@@ -7,7 +8,8 @@ class AVL{
     struct node {
       const T data;
       node* next[2];
-      node(const T& val) : data(val){
+      int count;
+      node(const T& val) : data(val), count(0){
         next[0] = NULL; //left
         next[1] = NULL; //right
       }
@@ -27,6 +29,10 @@ class AVL{
       return search(val);
     }
 
+    int operator()(int pos){
+      return search(root,pos);
+    }
+
     ~AVL() { destroy(this->root); }
 
   private:
@@ -44,6 +50,7 @@ class AVL{
       bool pos = less(val,(*root)->data);
       insert(val,&(*root)->next[!pos]);
       rotate(root);
+      (*root)->count = count(*root);
     }
 
     bool search(const T& val){
@@ -89,11 +96,30 @@ class AVL{
     //   }
     // }
 
+    int search(node* root, int pos){
+        while(root != nullptr){
+          if(root->next[0]->count+1 == pos){
+              return root->data;
+          } else if (less(pos,root->next[0]->count+1)){
+              root = root->next[0];
+          } else {
+              root = root->next[1];
+              pos -= root->next[0]->count+1;
+          }
+        }
+    }
+
     node* findMin(node* n){
       if (!n) return NULL;
       if (!n->next[0]) return n;
       return (n->next[0]);
     }
+
+    int count(node *tree){
+      if (tree == NULL) return 0;
+      return count(tree->next[0]) + count(tree->next[1]) + 1;
+    }
+
 
     int getHeight(node *n){
       if (!n) return 0;
@@ -105,6 +131,8 @@ class AVL{
       node *curr = n->next[1];
       n->next[1] = curr->next[0];
       curr->next[0] = n;
+      curr->count = count(curr);
+      n->count = count(n);
       return curr;
     }
 
@@ -112,6 +140,8 @@ class AVL{
       node* curr = n->next[0];
       n->next[0] = curr->next[1];
       curr->next[1] = n;
+      curr->count = count(curr);
+      n->count = count(n);
       return curr;
     }
 
@@ -136,7 +166,7 @@ class AVL{
       if(!root) return;
       postorder(root->next[0]);
       postorder(root->next[1]);
-      std::cout << root->data << " ";
+      std::cout << root->data << " ->" << root->count << std::endl;
     }
 
     void destroy(node* root){
@@ -162,5 +192,7 @@ int main(void){
   std::cout << avl[16] << std::endl;
   std::cout << avl[4] << std::endl;
   avl.postorder();
+  std::cout << std::endl;
+  std::cout << avl(4) << std::endl;
   std::cout << std::endl;
 }

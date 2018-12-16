@@ -23,7 +23,7 @@ class AVL{
 
     void postorder() { postorder(this->root); }
 
-    void operator[](const T& val){
+    bool &operator[](const T& val){
       search(val,this->root);
     }
 
@@ -46,13 +46,9 @@ class AVL{
       rotate(root);
     }
 
-    void search(const T& val, node* root){
-      if(root == nullptr)
-        return;
-      if(root->data == val){
-        std::cout << "found\n" << std::endl;
-        return;
-      }
+    bool search(const T& val, node* root){
+      if(root == nullptr) return false;
+      if(root->data == val) return true;
       bool pos = less(val,root->data);
       search(val,root->next[!pos]);
     }

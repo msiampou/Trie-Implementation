@@ -24,7 +24,7 @@ class AVL{
     void postorder() { postorder(this->root); }
 
     bool operator[](const T& val){
-      return search(val,this->root);
+      return search(val);
     }
 
     ~AVL() { destroy(this->root); }
@@ -46,11 +46,14 @@ class AVL{
       rotate(root);
     }
 
-    bool search(const T& val, node* root){
-      if(root == nullptr) return false;
-      if(root->data == val) return true;
-      bool pos = less(val,root->data);
-      search(val,root->next[!pos]);
+    bool search(const T& val){
+      node* curr = root;
+      while (curr != nullptr){
+        if(curr->data == val) return true;
+        bool pos = less(val,curr->data);
+        curr = curr->next[!pos];
+      }
+      return false;
     }
 
     // void remove(const T& val) { remove(val,&root); }

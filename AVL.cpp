@@ -23,8 +23,8 @@ class AVL{
 
     void postorder() { postorder(this->root); }
 
-    bool &operator[](const T& val){
-      search(val,this->root);
+    bool operator[](const T& val){
+      return search(val,this->root);
     }
 
     ~AVL() { destroy(this->root); }
@@ -156,7 +156,8 @@ int main(void){
   avl.insert(2);
   // avl.remove(15);
   // avl.remove(8);
-  avl[11];
+  std::cout << avl[16] << std::endl;
+  std::cout << avl[4] << std::endl;
   avl.postorder();
   std::cout << std::endl;
 }

@@ -1,126 +1,166 @@
 #include <iostream>
 
-template <typename T, typename C = std::less<T>>
+template <typename T, typename Less = std::less<T>>
 class AVL{
   private:
+
     struct node {
-      T data, height;
-      node* right;
-      node* left;
+      const T data;
+      node* next[2];
+      node(const T& val) : data(val){
+        next[0] = NULL; //left
+        next[1] = NULL; //right
+      }
     };
     node* root;
+    Less less;
+
   public:
-    AVL() {root = NULL;}
-    bool L(T a, T b, C c = C()) {return c(a, b);}
-    node* nodeCreate(T val){
-      node* n = new node;
-      n->data = val;
-      n->right = n->left = NULL;
-      n->height = 0;
+
+    AVL() { root = NULL; }
+
+    void insert(const T& val) { insert(val,&root); }
+
+    void postorder() { postorder(this->root); }
+
+    void operator[](const T& val){
+      search(val,this->root);
+    }
+
+    ~AVL() { destroy(this->root); }
+
+  private:
+
+    node* nodeCreate(const T& val){
+      node* n = new node(val);
       return n;
     }
-    void insert(T val) {insert(val,&root);}
-    void insert(T val, node** root){
-      if (!*root)
+
+    void insert(const T& val, node** root){
+      if (!*root){
         *root = nodeCreate(val);
-      else{
-        if (L(val,(*root)->data)){
-          insert(val,&(*root)->left);
-          rotate(root);
-        }
-        else{
-          insert(val,&(*root)->right);
-          rotate(root);
-        }
-      }
-    }
-    void remove(T val) {remove(val,&root);}
-    void remove(T val, node** root){
-      if (!*root)
         return;
-      else if (L(val,(*root)->data))
-        remove(val,&(*root)->left);
-      else if (L((*root)->data,val))
-        remove(val,&(*root)->right);
-      else
-        del(root);
-      if (!*root) return;
+      }
+      bool pos = less(val,(*root)->data);
+      insert(val,&(*root)->next[!pos]);
       rotate(root);
     }
-    void del(node** root){
-      if ((*root)->left && (*root)->right){
-          node* temp = findMin((*root)->right);
-          (*root)->data = temp->data;
-          remove((*root)->data,&(*root)->right);
+
+    void search(const T& val, node* root){
+      if(root == nullptr)
+        return;
+      if(root->data == val){
+        std::cout << "found\n" << std::endl;
+        return;
       }
-      else if (!(*root)->left){
-        node* temp = *root;
-        *root = (*root)->right;
-        delete temp;
-      }
-      else if (!(*root)->right){
-        node* temp = *root;
-        *root = (*root)->left;
-        delete temp;
-      }
+      bool pos = less(val,root->data);
+      search(val,root->next[!pos]);
     }
+
+    // void remove(const T& val) { remove(val,&root); }
+    //
+    // void remove(const T& val, node** root){
+    //   if (!*root)
+    //     return;
+    //   else if (L(val,(*root)->data))
+    //     remove(val,&(*root)->left);
+    //   else if (L((*root)->data,val))
+    //     remove(val,&(*root)->right);
+    //   else
+    //     del(root);
+    //   if (!*root) return;
+    //   rotate(root);
+    // }
+    //
+    // void del(node** root){
+    //   if ((*root)->left && (*root)->right){
+    //       node* temp = findMin((*root)->right);
+    //       (*root)->data = temp->data;
+    //       remove((*root)->data,&(*root)->right);
+    //
+    //   } else if (!(*root)->left){
+    //     node* temp = *root;
+    //     *root = (*root)->right;
+    //     delete temp;
+    //
+    //   } else if (!(*root)->right){
+    //     node* temp = *root;
+    //     *root = (*root)->left;
+    //     delete temp;
+    //   }
+    // }
+
     node* findMin(node* n){
       if (!n) return NULL;
-      else if (!n->left) return n;
-      else return (n->left);
+      if (!n->next[0]) return n;
+      return (n->next[0]);
     }
+
     int getHeight(node *n){
-      if (n)
-        if (L(getHeight(n->left),getHeight(n->right)))
-          return getHeight(n->right)+1;
-        else
-          return getHeight(n->left)+1;
-      else
-        return 0;
+      if (!n) return 0;
+      bool pos = less(getHeight(n->next[0]),getHeight(n->next[1]));
+      return getHeight(n->next[pos])+1;
     }
+
     node* rrRotation(node* n){
-      node *curr = n->right;
-      n->right = curr->left;
-      curr->left = n;
+      node *curr = n->next[1];
+      n->next[1] = curr->next[0];
+      curr->next[0] = n;
       return curr;
     }
+
     node* llRotation(node* n){
-      node* curr = n->left;
-      n->left = curr->right;
-      curr->right = n;
+      node* curr = n->next[0];
+      n->next[0] = curr->next[1];
+      curr->next[1] = n;
       return curr;
     }
-    void rlRotation(node** n){ (*n)->right = llRotation((*n)->right); }
-    void lrRotation(node** n){ (*n)->left = rrRotation((*n)->left); }
-    int BalanceFactor(node* n) {return (getHeight(n->left) - getHeight(n->right));}
+
+    void rlRotation(node** n) { (*n)->next[1] = llRotation((*n)->next[1]); }
+
+    void lrRotation(node** n) { (*n)->next[0] = rrRotation((*n)->next[0]); }
+
+    int BalanceFactor(node* n) { return (getHeight(n->next[0]) - getHeight(n->next[1])); }
+
     void rotate(node** n){
-      if (L(1,BalanceFactor(*n)) && L(0,BalanceFactor((*n)->left)))
+      if (less(1,BalanceFactor(*n)) && less(0,BalanceFactor((*n)->next[0])))
           *n = llRotation(*n);
-      else if (L(1,BalanceFactor(*n)) && !L(0,BalanceFactor((*n)->left)))
+      else if (less(1,BalanceFactor(*n)) && !less(0,BalanceFactor((*n)->next[0])))
           lrRotation(n);
-      else if (L(BalanceFactor(*n),-1) && L(0,BalanceFactor((*n)->right)))
+      else if (less(BalanceFactor(*n),-1) && less(0,BalanceFactor((*n)->next[1])))
           rlRotation(n);
-      else if (L(BalanceFactor(*n),-1) && !L(0,BalanceFactor((*n)->right)))
+      else if (less(BalanceFactor(*n),-1) && !less(0,BalanceFactor((*n)->next[1])))
           *n = rrRotation(*n);
     }
-    void postorder() {postorder(this->root);}
+
     void postorder(node* root){
       if(!root) return;
-      postorder(root->left);
-      postorder(root->right);
+      postorder(root->next[0]);
+      postorder(root->next[1]);
       std::cout << root->data << " ";
     }
+
     void destroy(node* root){
       if(!root) return;
-      destroy(root->left);
-      destroy(root->right);
+      destroy(root->next[0]);
+      destroy(root->next[1]);
       delete(root);
     }
-    ~AVL() {destroy(this->root);}
 };
 
 int main(void){
   AVL<int> avl;
-  //...//
+  avl.insert(8);
+  avl.insert(5);
+  avl.insert(4);
+  avl.insert(11);
+  avl.insert(15);
+  avl.insert(3);
+  avl.insert(6);
+  avl.insert(2);
+  // avl.remove(15);
+  // avl.remove(8);
+  avl[11];
+  avl.postorder();
   std::cout << std::endl;
 }

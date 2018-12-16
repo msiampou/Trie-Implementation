@@ -98,12 +98,14 @@ class AVL{
 
     int search(node* root, int pos){
         while(root != nullptr){
+          if (root->next[0] == nullptr) return -1;
           if(root->next[0]->count+1 == pos){
               return root->data;
           } else if (less(pos,root->next[0]->count+1)){
               root = root->next[0];
           } else {
               root = root->next[1];
+              if (root == nullptr || root->next[0] == nullptr) return -1;
               pos -= root->next[0]->count+1;
           }
         }
@@ -193,6 +195,6 @@ int main(void){
   std::cout << avl[4] << std::endl;
   avl.postorder();
   std::cout << std::endl;
-  std::cout << avl(4) << std::endl;
+  std::cout << avl(30) << std::endl;
   std::cout << std::endl;
 }

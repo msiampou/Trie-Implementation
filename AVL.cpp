@@ -1,5 +1,4 @@
 #include <iostream>
-#include <assert.h>     /* assert */
 
 template <typename T, typename Less = std::less<T>>
 class AVL{
@@ -196,5 +195,6 @@ int main(void){
   avl.postorder();
   std::cout << std::endl;
   std::cout << avl(30) << std::endl;
+  std::cout << avl(4) << std::endl;
   std::cout << std::endl;
 }

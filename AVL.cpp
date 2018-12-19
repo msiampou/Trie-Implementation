@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdlib>
+#include <ctime>
 
 template <typename T, typename Less = std::less<T>>
 class AVL{
@@ -114,7 +115,7 @@ class AVL{
       return (root->next[0]);
     }
 
-    node* single_rotation(node* root, int pos) {
+    node* single_rotation(node* root, bool pos) {
       node* curr = root->next[pos];
       curr->count = root->count;
       root->next[pos] = curr->next[!pos];
@@ -123,9 +124,20 @@ class AVL{
       return curr;
     }
 
-    void double_rotation(node*& root, int pos) { root->next[pos] = ll_rotation(root->next[pos]); }
+    void double_rotation(node*& root, bool pos) { root->next[pos] = ll_rotation(root->next[pos]); }
 
     void rotate(const T& val, node*& root) {
+      
+      if ((root->balance != -2) && (root->balance != 2)) return;
+      bool it = (root->balance == -2) ? 0 : 1;
+      bool pos = less(val,root->next[it];
+      if (it == pos) {
+        single_rotation(root,pos);
+      } else {
+        double_rotation(root,it);
+       }
+      (it == pos ? (Action)doThis : doThat)();
+      
       if (root->balance == -2){
         if (val < root->next[0]->data){
           root = single_rotation(root,0);
@@ -139,6 +151,25 @@ class AVL{
           double_rotation(root,1);
         }
       }
+    }
+    
+    int getHeight(node *n){
+      if (!n) return 0;
+      bool pos = less(getHeight(n->next[0]),getHeight(n->next[1]));
+      return getHeight(n->next[pos])+1;
+    }
+    
+    int BalanceFactor(node* n) { return (getHeight(n->next[0]) - getHeight(n->next[1])); }
+
+    void rotate(node*& n){
+      if (less(1,BalanceFactor(n)) && less(0,BalanceFactor(n->next[0])))
+          n = single_rotation(n,0);
+      else if (less(1,BalanceFactor(n) && !less(0,BalanceFactor(n->next[0])))
+          double_rotation(n,0);
+      else if (less(BalanceFactor(n),-1) && less(0,BalanceFactor(n->next[1])))
+          single_rotation(n,1);
+      else if (less(BalanceFactor(n),-1) && !less(0,BalanceFactor(n->next[1])))
+          n = double_rotation(n,1);
     }
 
     void postorder(node* root) {

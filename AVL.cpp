@@ -135,22 +135,22 @@ class AVL{
         single_rotation(root,pos);
       } else {
         double_rotation(root,it);
-       }
-      (it == pos ? (Action)doThis : doThat)();
-      
-      if (root->balance == -2){
-        if (val < root->next[0]->data){
-          root = single_rotation(root,0);
-        } else{
-          double_rotation(root,0);
-        }
-      } else if (root->balance == 2){
-        if (val > root->next[1]->data){
-          root = single_rotation(root,1);
-        } else{
-          double_rotation(root,1);
-        }
       }
+//       (it == pos ? (Action)doThis : doThat)();
+      
+//       if (root->balance == -2){
+//         if (val < root->next[0]->data){
+//           root = single_rotation(root,0);
+//         } else{
+//           double_rotation(root,0);
+//         }
+//       } else if (root->balance == 2){
+//         if (val > root->next[1]->data){
+//           root = single_rotation(root,1);
+//         } else{
+//           double_rotation(root,1);
+//         }
+//       }
     }
     
     int getHeight(node *n){

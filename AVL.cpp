@@ -62,13 +62,13 @@ class AVL{
     Less less;
 
     node* create (const T& val) {
-      node* n = new node(val);
+      node* n = 
       return n;
     }
 
     void insert (const T& val, node*& root) {
       if (root == nullptr){
-        root = create(val);
+        root = new node(val);
         std::cout<< root->data << " me balance: " << root->balance << std::endl;
         return;
       }

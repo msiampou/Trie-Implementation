@@ -15,11 +15,32 @@ class AVL{
     void postorder() { postorder(root_); }
 
     bool operator[](const T& val){
-      return search(val);
+      node* curr = root_;
+      while (curr != nullptr){
+        if(curr->data == val) return true;
+        bool it = less(val,curr->data);
+        curr = curr->next[it ? 0 : 1];
+      }
+      return false;
     }
 
     const T& operator()(int pos) {
-      return search(root_,pos);
+      if (pos <= 0 || pos > root_->count){
+        throw "Out of Range error: \n";
+      }
+      node* nnode = root_;
+      do{
+        size_t size = 0;
+        if (root_->next[0] != nullptr) {
+          size = root_->next[0]->count;
+        }
+        nnode = root_;
+        bool it = less(pos,size+1);
+        root_ = root_->next[it ? 0 : 1];
+        if (it == 0) pos -= size+1;
+      } while (pos>=1);
+
+      return nnode->data;
     }
 
     ~AVL() { destroy(root_); }
@@ -61,34 +82,13 @@ class AVL{
       rotate(val,root);
     }
 
-    inline bool search(const T& val) {
-      node* curr = root_;
-      while (curr != nullptr){
-        if(curr->data == val) return true;
-        bool it = less(val,curr->data);
-        curr = curr->next[it ? 0 : 1];
-      }
-      return false;
-    }
+//     inline bool search(const T& val) {
+      
+//     }
 
-    inline const T& search(node* root, size_t k) {
-      if (k <= 0 || k > root->count){
-        throw "Out of Range error: \n";
-      }
-      node* nnode = root;
-      do{
-        size_t size = 0;
-        if (root->next[0] != nullptr) {
-          size = root->next[0]->count;
-        }
-        nnode = root;
-        bool it = less(k,size+1);
-        root = root->next[it ? 0 : 1];
-        if (it == 0) k -= size+1;
-      } while (k>=1);
-
-      return nnode->data;
-    }
+//     inline const T& search(node* root, size_t k) {
+      
+//     }
 
     void remove(const T& val, node*& root){
       if (root == nullptr) return;

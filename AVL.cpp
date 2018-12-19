@@ -61,21 +61,13 @@ class AVL{
     node* root_;
     Less less;
 
-    node* create (const T& val) {
-      node* n = 
-      return n;
-    }
-
     void insert (const T& val, node*& root) {
       if (root == nullptr){
         root = new node(val);
-        std::cout<< root->data << " me balance: " << root->balance << std::endl;
         return;
       }
       bool it = less(val,root->data);
       int bf = it ? -1 : 1;
-      std::cout<<bf<<std::endl;
-      std::cout<< root->data << " me balance: " << root->balance << std::endl;
       insert(val,root->next[it ? 0 : 1]);
       root->count++;
       root->balance+=bf;
@@ -90,6 +82,7 @@ class AVL{
       if (root == nullptr) return;
       rotate(val,root);
     }
+    
     //TODO: Need to pass prev node
     void del(node*& root){
       if (root->next[0] && (root)->next[1]){
@@ -121,40 +114,29 @@ class AVL{
       return (root->next[0]);
     }
 
-    node* rr_rotation(node* root) {
-      node* curr = root->next[1];
+    node* single_rotation(node* root, int pos) {
+      node* curr = root->next[pos];
       curr->count = root->count;
-      root->next[1] = curr->next[0];
-      curr->next[0] = root;
-      curr->next[0]->count = 1;
+      root->next[pos] = curr->next[!pos];
+      curr->next[!pos] = root;
+      curr->next[!pos]->count = 1;
       return curr;
     }
 
-    node* ll_rotation(node* root) {
-      node* curr = root->next[0];
-      curr->count = root->count;
-      root->next[0] = curr->next[1];
-      curr->next[1] = root;
-      curr->next[1]->count = 1;
-      return curr;
-    }
-
-    void rl_rotation(node*& root) { root->next[1] = ll_rotation(root->next[1]); }
-
-    void lr_rotation(node*& root) { root->next[0] = rr_rotation(root->next[0]); }
+    void double_rotation(node*& root, int pos) { root->next[pos] = ll_rotation(root->next[pos]); }
 
     void rotate(const T& val, node*& root) {
       if (root->balance == -2){
         if (val < root->next[0]->data){
-          root = ll_rotation(root);
+          root = single_rotation(root,0);
         } else{
-          lr_rotation(root);
+          double_rotation(root,0);
         }
       } else if (root->balance == 2){
         if (val > root->next[1]->data){
-          root = rr_rotation(root);
+          root = single_rotation(root,1);
         } else{
-          rl_rotation(root);
+          double_rotation(root,1);
         }
       }
     }

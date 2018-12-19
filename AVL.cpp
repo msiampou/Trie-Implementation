@@ -82,23 +82,15 @@ class AVL{
       rotate(val,root);
     }
 
-//     inline bool search(const T& val) {
-      
-//     }
-
-//     inline const T& search(node* root, size_t k) {
-      
-//     }
-
     void remove(const T& val, node*& root){
       if (root == nullptr) return;
       if (root->data == val) { del(root); return; }
       bool it = less(val,root->data);
       remove(val,root->next[it ? 0 : 1]);
       if (root == nullptr) return;
-      //rotate(val,root);
+      rotate(val,root);
     }
-
+    //TODO: Need to pass prev node
     void del(node*& root){
       if (root->next[0] && (root)->next[1]){
           node* temp = find_min((root)->next[1]);

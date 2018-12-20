@@ -8,6 +8,8 @@ class AVL{
     AVL() { root_ = nullptr; }
 
     void insert(const T& val) { insert(val, root_); }
+    
+    //void remove(const T& val) { remove(val, root_); }
 
     void postorder() { postorder(root_); }
 
@@ -105,6 +107,43 @@ class AVL{
         }
       }
     }
+    
+    // void remove(const T& val, node*& root) {
+    //   if (root == nullptr) return;
+    //   if (root->data == val) { del(root); return; }
+    //   bool it = less_(val,root->data);
+    //   remove(val,root->next[it ? 0 : 1]);
+    //   if (root == nullptr) return;
+    //   //rotate(val,root);
+    // }
+    //
+    // void del(node*& root) {
+    //   if (root->next[0] && (root)->next[1]){
+    //       node* temp = find_min((root)->next[1]);
+    //
+    //       //(*root)->data = temp->data;
+    //       node* curr = temp;
+    //       temp = root;
+    //       root = curr;
+    //       //delete(temp);
+    //       remove(temp->data,temp->next[1]);
+    //  } else if (!(root)->next[0]){
+    //     node* temp = root;
+    //     root = (root)->next[1];
+    //     delete temp;
+    //
+    //   } else if (!(root)->next[1]){
+    //     node* temp = root;
+    //     root = (root)->next[0];
+    //     delete temp;
+    //   }
+    // }
+    //
+    // node* find_min(node* root) {
+    //   if (root == nullptr) return root;
+    //   if (root->next[0] == nullptr) return root;
+    //   return (root->next[0]);
+    // }
 
     void destroy(node* root) {
       if (root == nullptr) return;

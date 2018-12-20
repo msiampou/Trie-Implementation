@@ -51,7 +51,7 @@ class AVL{
       const T data;
       node* next[2];
       size_t count;
-      int balance : 3;
+      int balance : 2;
       node(const T& val) : data(val), count(1), balance(0){
         next[0] = nullptr;
         next[1] = nullptr;
@@ -72,64 +72,36 @@ class AVL{
       root->count++;
       root->balance+=bf;
       rotate(val,root);
+      root->balance=0;
+      if(root->next[0] != nullptr)
+        root->next[0]->balance=0;
+      if(root->next[1] != nullptr)
+        root->next[1]->balance=0;
     }
 
-    // node* single_rotation(node* root, bool pos) {
-    //   node* curr = root->next[pos];
-    //   curr->count = root->count;
-    //   root->next[pos] = curr->next[!pos];
-    //   curr->next[!pos] = root;
-    //   curr->next[!pos]->count = 1;
-    //   return curr;
-    // }
-    //
-    // void double_rotation(node*& root, bool pos) { root->next[pos] = single_rotation(root->next[pos],pos); }
-    //
-    // void rotate(const T& val, node*& root) {
-    //   if(root->balance != -2 && root->balance != 2)  return;
-    //   bool it = (root->balance == -2) ? 0 : 1;
-    //   bool pos = less_(val,root->next[it]->data);
-    //   if(it!=pos){
-    //     root = single_rotation(root,it);
-    //   } else {
-    //     double_rotation(root,it);
-    //   }
-    // }
-
-    node* rr_rotation(node* root) {
-      node* curr = root->next[1];
+    node* single_rotation(node* root, bool pos) {
+      node* curr = root->next[pos];
       curr->count = root->count;
-      root->next[1] = curr->next[0];
-      curr->next[0] = root;
-      curr->next[0]->count = 1;
+      root->next[pos] = curr->next[!pos];
+      curr->next[!pos] = root;
+      curr->next[!pos]->count = 1;
       return curr;
     }
 
-    node* ll_rotation(node* root) {
-      node* curr = root->next[0];
-      curr->count = root->count;
-      root->next[0] = curr->next[1];
-      curr->next[1] = root;
-      curr->next[1]->count = 1;
-      return curr;
-    }
-
-    void rl_rotation(node*& root) { root->next[1] = ll_rotation(root->next[1]); }
-
-    void lr_rotation(node*& root) { root->next[0] = rr_rotation(root->next[0]); }
+    void double_rotation(node*& root, bool pos) { root->next[pos] = single_rotation(root->next[pos],pos); }
 
     void rotate(const T& val, node*& root) {
-      if (root->balance == -2){
-        if (val < root->next[0]->data){
-          root = ll_rotation(root);
-        } else{
-          lr_rotation(root);
+      if (root->balance > 1) {
+        if (root->next[0]->balance > 0) {
+          root = single_rotation(root,0);
+        } else {
+          double_rotation(root,0);
         }
-      } else if (root->balance == 2){
-        if (val > root->next[1]->data){
-          root = rr_rotation(root);
-        } else{
-          rl_rotation(root);
+      } else if (root->balance < -1) {
+        if (root->next[1]->balance > 0) {
+          root = single_rotation(root,1);
+        } else {
+          double_rotation(root,1);
         }
       }
     }
@@ -190,52 +162,40 @@ class AVL{
 int main(void){
   AVL<int> avl;
   srand(time(NULL));
-
-  // for (int i=1; i<=20; i++){
-  //     avl.insert(i+rand()%1000+1);
-  // }
-
   for (int i=1; i<=100; i++){
-      avl.insert(i);
+      int num = rand()%100+1;
+      if (avl[num] == false)
+        avl.insert(num);
   }
-
-  avl.insert(8);
-  avl.insert(5);
-  avl.insert(4);
-  avl.insert(11);
-  avl.insert(15);
-  avl.insert(3);
-  avl.insert(6);
-  avl.insert(2);
-  avl.insert(64);
+  // avl.insert(8);
   // avl.insert(5);
-  // avl.insert(2443);
-  // avl.insert(122);
-  // avl.insert(33);
-  // avl.insert(53);
-  // avl.insert(112);
-  // avl.insert(543);
-  // avl.insert(38);
-  // avl.insert(45);
   // avl.insert(4);
-  // avl.insert(89);
-  // avl.insert(96);
-  // avl.insert(69);
-  // avl.insert(47);
-  // avl.insert(74);
-  // avl.insert(465);
-  // avl.insert(1254);
-  // avl.insert(87);
-  // avl.insert(9844);
-  // avl.insert(3486);
-  // avl.insert(13245);
-  // avl.insert(8764);
-  // avl.insert(435);
-  // avl.insert(222222);
-  // avl.insert(111111);
+  // avl.insert(11);
+  // avl.insert(15);
+  // avl.insert(3);
+  // avl.insert(6);
+  // avl.insert(2);
+  // avl.insert(1);
+  // avl.insert(19);
+  // avl.insert(7);
+  // avl.insert(21);
+  // avl.insert(25);
+  // avl.insert(7);
+  // avl.insert(90);
+  // avl.insert(99);
+  // avl.insert(31);
+  // avl.insert(5);
+  // avl.insert(54);
+  // avl.insert(64);
+  // avl.insert(27);
+  // avl.insert(82);
+  // avl.insert(29);
+  // avl.insert(7);
+  // avl.insert(90);
+  // avl.insert(99);
+  // avl.insert(31);
+//  avl.postorder();
 
-
-  // avl.postorder();
   // std::cout << std::endl;
   //
   //avl.remove(15);

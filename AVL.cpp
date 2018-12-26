@@ -1,31 +1,36 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <assert.h>
 
 template <typename T, typename Less = std::less<T>>
 class AVL{
-  public:
-    AVL() { root_ = nullptr; }
 
-    void insert(const T& val) { insert(val, root_); }
-    
-    //void remove(const T& val) { remove(val, root_); }
+  public:
+
+    AVL() : root_(0) {}
+
+    void check() { check(root_); }
 
     void postorder() { postorder(root_); }
 
     bool operator[](const T& val) {
       node* curr = root_;
-      while (curr != nullptr) {
-        if (curr->data == val) return true;
-        bool it = less_(val, curr->data);
-        curr = curr->next[it ? 0 : 1];
+      while (curr != nullptr){
+        if (less_(val, curr->data)) {
+          curr = curr->next[0];
+        } else if (less_(curr->data,val)) {
+          curr = curr->next[1];
+        } else {
+          return true;
+        }
       }
       return false;
     }
 
     const T& operator()(size_t k) {
-      if (k <= 0 || k > root_->count) {
-        throw "Out of Range error: \n";  // fix me
+      if (k <= 0 || k > root_->count){
+        throw "Out of Range error: \n";   //fix me
       }
       node* nnode = root_;
       do {
@@ -34,11 +39,33 @@ class AVL{
           size = root_->next[0]->count;
         }
         nnode = root_;
-        bool pos = less_(k,size + 1);
-        root_ = root_->next[pos ? 0 : 1];
-        if (!pos) k -= size + 1;
+        bool it = less_(k, size + 1);
+        root_ = root_->next[it ? 0 : 1];
+        if (it == 0) k -= size + 1;
       } while (k >= 1);
       return nnode->data;
+    }
+
+    bool insert(const T& val){
+      node** curr = &root_;
+      size_t i = 0;
+      while (*curr != nullptr) {
+        stack[i++] = curr;
+        if (less_(val, (*curr)->data)) {
+          curr = &((*curr)->next[0]);
+        } else if (less_((*curr)->data ,val)) {
+          curr = &((*curr)->next[1]);
+        } else {
+          return false;
+        }
+      }
+      *curr = new node(val);
+      for (size_t j = 0; j < i; ++j) {
+        size_t it = i -j -1;
+        bool pos = less_(val,(*stack[it])->data);
+        rotate(*stack[it],pos);
+      }
+      return true;
     }
 
     ~AVL() { destroy(root_); }
@@ -47,10 +74,13 @@ class AVL{
 
     struct node {
       const T data;
+      int balance :2;
       node* next[2];
       size_t count;
-      int balance : 2;
-      node(const T& val) : data(val), count(1), balance(0){
+      node(const T& val)
+          : data(val),
+          count(1),
+          balance(0){
         next[0] = nullptr;
         next[1] = nullptr;
       }
@@ -58,98 +88,118 @@ class AVL{
 
     node* root_;
     Less less_;
+    node** stack[64];
 
-    void insert (const T& val, node*& root) {
-      if (root == nullptr){
-        root = new node(val);
-        return;
-      }
-      bool pos = less_(val, root->data);
-      int bf = pos ? -1 : 1;
-      insert(val,root->next[pos ? 0 : 1]);
-      root->count++;
-      root->balance+=bf;
-      rotate(val,root);
-      root->balance = 0;
-      if(root->next[0] != nullptr) {
-        root->next[0]->balance = 0;
-      }
-      if(root->next[1] != nullptr) {
-        root->next[1]->balance = 0;
-      }
+    int getHeight(node *n){
+      if (!n) return 0;
+      bool pos = less_(getHeight(n->next[0]),getHeight(n->next[1]));
+      return getHeight(n->next[pos])+1;
     }
 
-    node* single_rotation(node* root, bool pos) {
-      node* curr = root->next[pos];
+    int BalanceFactor(node* n) { return (getHeight(n->next[0]) - getHeight(n->next[1])); }
+
+    node* double_rotation(node* root, bool pos){
+      node *curr = root->next[pos];
+      root->next[pos] = single_rotation(curr,!pos);
+      node* temp = single_rotation(root,pos);
+      if (temp->balance != 1) {
+        temp->next[pos]->balance = 0;
+        temp->next[!pos]->balance = -(temp->balance);
+      } else {
+        temp->next[pos]->balance = pos ? -1 : 1;
+        temp->next[!pos]->balance = 0;
+      }
+      temp->balance = 0;
+      return temp;
+    }
+
+    node* single_rotation(node* root, bool pos){
+      //std::cout << "single rot" << std::endl;
+      node *curr = root->next[pos];
       curr->count = root->count;
       root->next[pos] = curr->next[!pos];
       curr->next[!pos] = root;
       curr->next[!pos]->count = 1;
+      //std::cout << curr->data << " " << curr->balance << std::endl;
+      curr->balance += pos ? -1 : 1;
+      //std::cout << curr->data << " " << curr->balance << std::endl;
+      //std::cout << root->data << " " << root->balance << std::endl;
+      root->balance = -(curr->balance);
+      //std::cout << root->data << " " << root->balance << std::endl;
       return curr;
     }
 
-    void double_rotation(node*& root, bool pos) {
-      root->next[pos] = single_rotation(root->next[pos], pos);
-    }
-
-    void rotate(const T& val, node*& root) {
-      if (root->balance > 1) {  // fix me
-        if (root->next[0]->balance > 0) {
-          root = single_rotation(root,0);
+    void rotate(node*& n) {
+      int bal_factor = BalanceFactor(n);
+      if (bal_factor > 1) {
+        std::cout << n->data << " to rotate1" << std::endl;
+        if (BalanceFactor(n->next[0]) > 0) {
+            n = single_rotation(n,0);
         } else {
-          double_rotation(root,0);
+            n = double_rotation(n,0);
         }
-      } else if (root->balance < -1) {  // fix me
-        if (root->next[1]->balance > 0) {
-          root = single_rotation(root,1);
+      }
+      else if (bal_factor < -1) {
+       std::cout << n->data << " to rotate2" << std::endl;
+        if (BalanceFactor(n->next[1]) > 0) {
+          n = double_rotation(n,1);
         } else {
-          double_rotation(root,1);
+          n = single_rotation(n,1);
         }
       }
     }
-    
-    // void remove(const T& val, node*& root) {
-    //   if (root == nullptr) return;
-    //   if (root->data == val) { del(root); return; }
-    //   bool it = less_(val,root->data);
-    //   remove(val,root->next[it ? 0 : 1]);
-    //   if (root == nullptr) return;
-    //   //rotate(val,root);
-    // }
-    //
-    // void del(node*& root) {
-    //   if (root->next[0] && (root)->next[1]){
-    //       node* temp = find_min((root)->next[1]);
-    //
-    //       //(*root)->data = temp->data;
-    //       node* curr = temp;
-    //       temp = root;
-    //       root = curr;
-    //       //delete(temp);
-    //       remove(temp->data,temp->next[1]);
-    //  } else if (!(root)->next[0]){
-    //     node* temp = root;
-    //     root = (root)->next[1];
-    //     delete temp;
-    //
-    //   } else if (!(root)->next[1]){
-    //     node* temp = root;
-    //     root = (root)->next[0];
-    //     delete temp;
-    //   }
-    // }
-    //
-    // node* find_min(node* root) {
-    //   if (root == nullptr) return root;
-    //   if (root->next[0] == nullptr) return root;
-    //   return (root->next[0]);
-    // }
+
+    void rotate(node*& n, bool pos) {
+      if (pos) {
+        if (n->balance < 0) {
+          //std::cout << n->data << " to rotate1" << std::endl;
+          if ((n->next[0])->balance != 1) {
+              n = single_rotation(n,0);
+          } else {
+              n = double_rotation(n,0);
+          }
+        } else {
+          n->balance -=1;
+        }
+      } else {
+        if (n->balance > 0) {
+          //std::cout << n->data << " to rotate2" << std::endl;
+          if ((n->next[1])->balance != -1) {
+            n = single_rotation(n,1);
+          } else {
+            n = double_rotation(n,1);
+          }
+        }
+        else {
+          n->balance +=1;
+        }
+      }
+    }
+
+    void postorder(node* root) {
+     if (root != nullptr) {
+        postorder(root->next[0]);
+        std::cout << root->data << "->" << root->balance << std::endl;
+        postorder(root->next[1]);
+     }
+    }
 
     void destroy(node* root) {
-      if (root == nullptr) return;
-      destroy(root->next[0]);
-      destroy(root->next[1]);
-      delete(root);
+      if (root != nullptr) {
+        destroy(root->next[0]);
+        destroy(root->next[1]);
+        delete(root);
+      }
+    }
+
+    size_t check(node* p) {
+      if (p == NULL) return 0;
+      size_t l = check(p->next[0]);
+      size_t r = check(p->next[1]);
+      size_t d = (l > r) ? (l - r) : (r - l);
+      std::cout << d << std::endl;
+      assert(d <= 1);
+      return ((l > r) ? l : r) + 1;
     }
 };
 
@@ -158,25 +208,39 @@ int main(void) {
   int n = 1000000;
 
   srand(time(NULL));
-  
-  clock_t c = clock();
-  for (int i = 0; i < n; ++i) {
-    int num = rand();
-    if (!avl[num]) {
-      avl.insert(num);
-    } else {
-      --i;
+
+  int* nums = new int[n];
+
+  clock_t isum = 0;
+  clock_t ssum = 0;
+  for (int j = 0; j < 1000; j++) {
+    for (int i = 0; i < 1000; ++i) {
+      nums[i] = rand();
     }
+    clock_t c = clock();
+    for (int i = 0; i < 500; ++i) {
+      avl.insert(nums[i]);
+    }
+    isum += clock() - c;
+    c = clock();
+    for (int i = 0; i < 1000; ++i) {
+      avl[nums[i]];
+    }
+    ssum += clock() - c;
   }
-  c = clock() - c;
-  double s = c * 1.0 / CLOCKS_PER_SEC;
+
+  double s = isum * 1.0 / CLOCKS_PER_SEC;
   std::cout << n << " random inserts in " << s << " sec" << std::endl;
 
-  c = clock();
-  for (int i = 0; i < n; ++i) {
+  clock_t c = clock();
+  for (int i = 1; i <= n; ++i) {
     avl.insert(i);
   }
   c = clock() - c;
   s = c * 1.0 / CLOCKS_PER_SEC;
   std::cout << n << " sequential inserts in " << s << " sec" << std::endl;
+
+  s = ssum * 1.0 / CLOCKS_PER_SEC;
+  std::cout << n << " random serches in " << s << " sec" << std::endl;
+
 }

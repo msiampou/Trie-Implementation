@@ -282,5 +282,5 @@ int main(void) {
 
   s = ssum * 1.0 / CLOCKS_PER_SEC;
   rate = n*loops / s;
-  std::cout << n << "x" << loops << " random serches -> rate: " << rate << std::endl;
+  std::cout << n << "x" << loops << " random searches -> rate: " << rate << std::endl;
 }

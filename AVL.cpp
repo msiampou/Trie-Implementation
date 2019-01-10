@@ -8,9 +8,7 @@ class AVL{
 
   public:
 
-  AVL() : root_(nullptr) {
-    stack = new node** [sizeof(unsigned int)*64];
-  }
+  AVL() : root_(nullptr) {}
 
   void check() { check(root_); }
 
@@ -129,7 +127,7 @@ class AVL{
 
   node* root_;
   Less less_;
-  node*** stack;
+  node** stack[64];
 
   void double_rotation(node*& root, bool pos){
     node* temp = root;

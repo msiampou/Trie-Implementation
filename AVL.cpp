@@ -8,7 +8,7 @@ class AVL{
 
   public:
 
-  AVL() : root_(0) {
+  AVL() : root_(nullptr) {
     stack = new node** [sizeof(unsigned int)*64];
   }
 
@@ -55,7 +55,7 @@ class AVL{
       *(++ts) = curr;
       if (less_(val, (*curr)->data)) {
         curr = &((*curr)->next[0]);
-      } else if (less_((*curr)->data ,val)) {
+      } else if (less_((*curr)->data, val)) {
         curr = &((*curr)->next[1]);
       } else {
         return false;
@@ -64,8 +64,8 @@ class AVL{
     *curr = new node(val);
     while (ts != stack) {
       curr = *ts;
-      bool pos = less_(val,(*curr)->data);
-      if (rotate(*curr,pos) == true) return true;
+      bool pos = less_(val, (*curr)->data);
+      if (rotate(*curr, pos) == true) return true;
       ts--;
     }
     return true;

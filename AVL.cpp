@@ -160,6 +160,7 @@ class AVL{
   }
 
   bool rotate(node*& n, bool pos) {
+    //merge this
     if (pos) {
       if (n->balance < 0) {
         if ((n->next[0])->balance != 1) {

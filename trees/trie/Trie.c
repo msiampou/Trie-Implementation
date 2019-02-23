@@ -5,7 +5,7 @@
 #include <math.h>
 
 #include "Trie.h"
-#include "Stack.h"
+#include "../../stack/Stack.h"
 
 /* Initialising Trie
  * and creating its root

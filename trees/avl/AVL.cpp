@@ -30,20 +30,21 @@ class AVL{
 
   const T& operator()(size_t k) {
     if (k <= 0 || k > root_->count){
-      throw "Out of Range error: \n";   //fix me
+      cout << "Out of Range error" << endl;
+      return NULL;
     }
-    node* nnode = root_;
+    node* new_node = root_;
     do {
       size_t size = 0;
       if (root_->next[0] != nullptr) {
         size = root_->next[0]->count;
       }
-      nnode = root_;
+      new_node = root_;
       bool it = less_(k, size + 1);
       root_ = root_->next[it ? 0 : 1];
       if (it == 0) k -= size + 1;
     } while (k >= 1);
-    return nnode->data;
+    return new_node->data;
   }
 
   bool insert(const T& val){
@@ -70,8 +71,8 @@ class AVL{
   }
 
   void destroy(void){
-    node*** ts = stack;
     node** curr;
+    node*** ts = stack;
     if (root_ == nullptr) return;
     *(++ts) = &root_;
     while (ts != stack) {
@@ -90,24 +91,7 @@ class AVL{
     root_ = nullptr;
   }
 
-  bool remove(const T& val) {
-    node*** ts = stack;
-    node** curr = &root_;
-    while (*curr != nullptr) {
-      *(++ts) = curr;
-      if (less_(val, (*curr)->data)) {
-        curr = &((*curr)->next[0]);
-      } else if (less_((*curr)->data ,val)) {
-        curr = &((*curr)->next[1]);
-      } else {
-        return false;
-      }
-    }
-    if (*curr == nullptr) return false;
-
-  }
-
-  ~AVL() { /*(destroy(root_);*/ }
+  ~AVL() { destroy(); }
 
   private:
 
@@ -160,7 +144,6 @@ class AVL{
   }
 
   bool rotate(node*& n, bool pos) {
-    //merge this
     if (pos) {
       if (n->balance < 0) {
         if ((n->next[0])->balance != 1) {
@@ -191,33 +174,6 @@ class AVL{
     return false;
   }
 
-  void delete(node*& root, node*** ts){
-    if (root->next[0] == nullptr) {
-      node* temp = root;
-      root = root->next[1];
-      delete temp;
-    } else if (root->next[1] == nullptr) {
-      node* temp = root;
-      root = root->next[0];
-      delete temp;
-    }
-    node* prev = root;
-    node*** ps = s+1;
-    root = &((*root)->next[0]);
-    while (root->next[0]) {
-      *(++s) = root;
-      root = &((*root)->next[0]);
-    }
-    node* temp = root;
-    root = root->next[1];
-    temp->balance = prev->balance;
-    temp->next[0] = prev->next[0];
-    temp->next[1] = prev->next[1];
-    delete prev;
-    prev = temp;
-    *ps = &(temp->next[0]);
-  }
-
   void postorder(node* root) {
    if (root != nullptr) {
       postorder(root->next[0]);
@@ -240,7 +196,7 @@ class AVL{
 int main(void) {
   AVL<int> avl;
   int n = 1000;
-  int loops = 10000000/n;
+  int loops = 1000/n;
 
   srand(time(NULL));
 
@@ -282,4 +238,5 @@ int main(void) {
   s = ssum * 1.0 / CLOCKS_PER_SEC;
   rate = n*loops / s;
   std::cout << n << "x" << loops << " random searches -> rate: " << rate << std::endl;
+  delete[] nums;
 }

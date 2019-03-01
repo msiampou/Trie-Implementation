@@ -45,7 +45,7 @@ class BST{
     return new_node->data;
   }
 
-  bool insert(const T& val){
+  bool insert(const T& val) {
     node** curr = &root_;
     node*** ts = stack;
     while (*curr != nullptr) {
@@ -62,7 +62,7 @@ class BST{
     return true;
   }
 
-  void destroy(void){
+  void destroy(void) {
     node** curr;
     node*** ts = stack;
     if (root_ == nullptr) return;

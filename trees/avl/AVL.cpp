@@ -30,7 +30,7 @@ class AVL{
 
   const T& operator()(size_t k) {
     if (k <= 0 || k > root_->count){
-      cout << "Out of Range error" << endl;
+      std::cout << "Out of Range error" << std::endl;
       return NULL;
     }
     node* new_node = root_;
